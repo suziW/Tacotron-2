@@ -5,6 +5,7 @@ from multiprocessing import cpu_count
 from datasets import preprocessor
 from hparams import hparams
 from tqdm import tqdm
+from my_utils import stylePrint
 
 
 def preprocess(args, input_folders, out_dir, hparams):
@@ -79,14 +80,15 @@ def norm_data(args):
 def run_preprocess(args, hparams):
 	input_folders = norm_data(args)
 	output_folder = os.path.join(args.base_dir, args.output)
-
+	stylePrint('input_folders:', input_folders, fore='red')
+	stylePrint('output_folder:', output_folder, fore='red')
 	preprocess(args, input_folders, output_folder, hparams)
 
 
 def main():
 	print('initializing preprocessing..')
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--base_dir', default='')
+	parser.add_argument('--base_dir', default='test/')
 	parser.add_argument('--hparams', default='',
 		help='Hyperparameter overrides as a comma-separated list of name=value pairs')
 	parser.add_argument('--dataset', default='LJSpeech-1.1')

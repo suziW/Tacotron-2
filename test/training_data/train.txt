@@ -1,0 +1,5 @@
+audio-LJ001-0001.npy|mel-LJ001-0001.npy|linear-LJ001-0001.npy|212025|771|Printing, in the only sense with which we are at present concerned, differs from most if not from all the arts and crafts represented in the Exhibition
+audio-LJ001-0002.npy|mel-LJ001-0002.npy|linear-LJ001-0002.npy|40975|149|in being comparatively modern.
+audio-LJ001-0003.npy|mel-LJ001-0003.npy|linear-LJ001-0003.npy|211475|769|For although the Chinese took impressions from wood blocks engraved in relief for centuries before the woodcutters of the Netherlands, by a similar process
+audio-LJ001-0004.npy|mel-LJ001-0004.npy|linear-LJ001-0004.npy|113575|413|produced the block books, which were the immediate predecessors of the true printed book,
+audio-LJ001-0005.npy|mel-LJ001-0005.npy|linear-LJ001-0005.npy|178200|648|the invention of movable metal letters in the middle of the fifteenth century may justly be considered as the invention of the art of printing.

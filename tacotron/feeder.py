@@ -8,6 +8,7 @@ import tensorflow as tf
 from infolog import log
 from sklearn.model_selection import train_test_split
 from tacotron.utils.text import text_to_sequence
+from my_utils import stylePrint
 
 _batches_per_group = 64
 
@@ -17,6 +18,7 @@ class Feeder:
 	"""
 
 	def __init__(self, coordinator, metadata_filename, hparams):
+		stylePrint('metadata filename:', metadata_filename, fore='yellow')	#training_data/train.txt
 		super(Feeder, self).__init__()
 		self._coord = coordinator
 		self._hparams = hparams
@@ -29,8 +31,10 @@ class Feeder:
 		self._linear_dir = os.path.join(os.path.dirname(metadata_filename), 'linear')
 		with open(metadata_filename, encoding='utf-8') as f:
 			self._metadata = [line.strip().split('|') for line in f]
-			frame_shift_ms = hparams.hop_size / hparams.sample_rate
+			frame_shift_ms = hparams.hop_size / hparams.sample_rate	
 			hours = sum([int(x[4]) for x in self._metadata]) * frame_shift_ms / (3600)
+			stylePrint('metadata take 1:', self._metadata[0], fore='yellow') #list of [audioName, melName, linearName, audioLen, specLen, text]
+			stylePrint('frame_shift_ms :', frame_shift_ms, fore='yellow') #about= 0.125
 			log('Loaded metadata for {} examples ({:.2f} hours)'.format(len(self._metadata), hours))
 
 		#Train test split
@@ -48,6 +52,7 @@ class Feeder:
 		extra_test = test_indices[len_test_indices:]
 		test_indices = test_indices[:len_test_indices]
 		train_indices = np.concatenate([train_indices, extra_test])
+		stylePrint('train_indices:', train_indices, fore='yellow')
 
 		self._train_meta = list(np.array(self._metadata)[train_indices])
 		self._test_meta = list(np.array(self._metadata)[test_indices])
@@ -72,13 +77,13 @@ class Feeder:
 			# Create placeholders for inputs and targets. Don't specify batch size because we want
 			# to be able to feed different batch sizes at eval time.
 			self._placeholders = [
-			tf.placeholder(tf.int32, shape=(None, None), name='inputs'),
-			tf.placeholder(tf.int32, shape=(None, ), name='input_lengths'),
+			tf.placeholder(tf.int32, shape=(None, None), name='inputs'),	#batch, input_max_len
+			tf.placeholder(tf.int32, shape=(None, ), name='input_lengths'),		#before padding, each input length
 			tf.placeholder(tf.float32, shape=(None, None, hparams.num_mels), name='mel_targets'),
 			tf.placeholder(tf.float32, shape=(None, None), name='token_targets'),
 			tf.placeholder(tf.float32, shape=(None, None, hparams.num_freq), name='linear_targets'),
-			tf.placeholder(tf.int32, shape=(None, ), name='targets_lengths'),
-			tf.placeholder(tf.int32, shape=(hparams.tacotron_num_gpus, None), name='split_infos'),
+			tf.placeholder(tf.int32, shape=(None, ), name='targets_lengths'),	#before padding, each target length
+			tf.placeholder(tf.int32, shape=(hparams.tacotron_num_gpus, None), name='split_infos'), #[input_max_len, mel_target_max_len, token_target_max_len, linear_target_max_len]
 			]
 
 			# Create queue for buffering data
@@ -156,6 +161,7 @@ class Feeder:
 			# Read a group of examples
 			n = self._hparams.tacotron_batch_size
 			r = self._hparams.outputs_per_step
+			# stylePrint('get num examples:', n, _batches_per_group, fore='red', back='white')
 			examples = [self._get_next_example() for i in range(n * _batches_per_group)]
 
 			# Bucket examples based on similar output sequence length for efficiency
@@ -188,12 +194,16 @@ class Feeder:
 
 		text = meta[5]
 
-		input_data = np.asarray(text_to_sequence(text, self._cleaner_names), dtype=np.int32)
+		input_data = np.asarray(text_to_sequence(text, self._cleaner_names), dtype=np.int32)	########################### important@!  text2sequence
+		# stylePrint('text:', text, fore='yellow', back='white')
+		# stylePrint('input_data:', input_data, fore='yellow', back='white')
 		mel_target = np.load(os.path.join(self._mel_dir, meta[1]))
 		#Create parallel sequences containing zeros to represent a non finished sequence
 		token_target = np.asarray([0.] * (len(mel_target) - 1))
+		# stylePrint('mel_target:', mel_target.shape, fore='yellow', back='white')
+		# stylePrint('token_target:', token_target.shape, token_target, fore='yellow', back='white')
 		linear_target = np.load(os.path.join(self._linear_dir, meta[2]))
-		return (input_data, mel_target, token_target, linear_target, len(mel_target))
+		return (input_data, mel_target, token_target, linear_target, len(mel_target))	########################### important@!  next example
 
 	def _prepare_batch(self, batches, outputs_per_step):
 		assert 0 == len(batches) % self._hparams.tacotron_num_gpus
@@ -211,8 +221,9 @@ class Feeder:
 		input_lengths = np.asarray([len(x[0]) for x in batches], dtype=np.int32)
 
 		#Produce inputs/targets of variables lengths for different GPUs
-		for i in range(self._hparams.tacotron_num_gpus):
+		for i in range(self._hparams.tacotron_num_gpus):	########################### important@! padding
 			batch = batches[size_per_device * i: size_per_device * (i + 1)]
+			# stylePrint('x[0] in batch:', [len(x[0] for x in batch)], fore='blue', back='white')
 			input_cur_device, input_max_len = self._prepare_inputs([x[0] for x in batch])
 			inputs = np.concatenate((inputs, input_cur_device), axis=1) if inputs is not None else input_cur_device
 			mel_target_cur_device, mel_target_max_len = self._prepare_targets([x[1] for x in batch], outputs_per_step)
@@ -226,7 +237,7 @@ class Feeder:
 			split_infos.append([input_max_len, mel_target_max_len, token_target_max_len, linear_target_max_len])
 
 		split_infos = np.asarray(split_infos, dtype=np.int32)
-		return (inputs, input_lengths, mel_targets, token_targets, linear_targets, targets_lengths, split_infos)
+		return (inputs, input_lengths, mel_targets, token_targets, linear_targets, targets_lengths, split_infos) ########################### important@! feed_dict
 
 	def _prepare_inputs(self, inputs):
 		max_len = max([len(x) for x in inputs])
@@ -243,10 +254,10 @@ class Feeder:
 		return np.stack([self._pad_token_target(t, data_len) for t in targets]), data_len
 
 	def _pad_input(self, x, length):
-		return np.pad(x, (0, length - x.shape[0]), mode='constant', constant_values=self._pad)
+		return np.pad(x, (0, length - x.shape[0]), mode='constant', constant_values=self._pad)	#在x后边pad字符'_’length-x.shape[0]个
 
 	def _pad_target(self, t, length):
-		return np.pad(t, [(0, length - t.shape[0]), (0, 0)], mode='constant', constant_values=self._target_pad)
+		return np.pad(t, [(0, length - t.shape[0]), (0, 0)], mode='constant', constant_values=self._target_pad)	#在零轴后边pad self._target_pad
 
 	def _pad_token_target(self, t, length):
 		return np.pad(t, (0, length - t.shape[0]), mode='constant', constant_values=self._token_pad)

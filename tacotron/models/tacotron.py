@@ -8,6 +8,7 @@ from tacotron.models.Architecture_wrappers import TacotronEncoderCell, TacotronD
 from tacotron.models.custom_decoder import CustomDecoder
 from tacotron.models.attention import LocationSensitiveAttention
 
+from my_utils import stylePrint
 import numpy as np
 
 def split_func(x, split_pos):
@@ -57,6 +58,8 @@ class Tacotron():
 			hp = self._hparams
 			lout_int = [tf.int32]*hp.tacotron_num_gpus
 			lout_float = [tf.float32]*hp.tacotron_num_gpus
+			stylePrint('lout_int:', lout_int, fore='yellow')
+			stylePrint('lout_float:', lout_float, fore='yellow')
 
 			tower_input_lengths = tf.split(input_lengths, num_or_size_splits=hp.tacotron_num_gpus, axis=0)
 			tower_targets_lengths = tf.split(targets_lengths, num_or_size_splits=hp.tacotron_num_gpus, axis=0) if targets_lengths is not None else targets_lengths
@@ -113,7 +116,7 @@ class Tacotron():
 					self.embedding_table = tf.get_variable(
 						'inputs_embedding', [len(symbols), hp.embedding_dim], dtype=tf.float32)
 					embedded_inputs = tf.nn.embedding_lookup(self.embedding_table, tower_inputs[i])
-
+					stylePrint('embedded_inputs:', embedded_inputs, fore='blue')
 
 					#Encoder Cell ==> [batch_size, encoder_steps, encoder_lstm_units]
 					encoder_cell = TacotronEncoderCell(
@@ -122,10 +125,10 @@ class Tacotron():
 							zoneout=hp.tacotron_zoneout_rate, scope='encoder_LSTM'))
 
 					encoder_outputs = encoder_cell(embedded_inputs, tower_input_lengths[i])
-
+					stylePrint('encoder_outputs:', encoder_outputs, fore='blue')
 					#For shape visualization purpose
 					enc_conv_output_shape = encoder_cell.conv_output_shape
-
+					stylePrint('enc_conv_output_shape:', enc_conv_output_shape, fore='blue')
 
 					#Decoder Parts
 					#Attention Decoder Prenet

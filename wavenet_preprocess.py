@@ -30,8 +30,9 @@ def write_metadata(metadata, out_dir):
 
 def run_preprocess(args, hparams):
 	output_folder = os.path.join(args.base_dir, args.output)
+	input_dir = os.path.join(args.base_dir, args.input_dir)
 
-	preprocess(args, args.input_dir, output_folder, hparams)
+	preprocess(args, input_dir, output_folder, hparams)
 
 def main():
 	print('initializing preprocessing..')

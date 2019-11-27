@@ -16,6 +16,7 @@ from tacotron.utils import ValueWindow, plot
 from tacotron.utils.text import sequence_to_text
 from tacotron.utils.symbols import symbols
 from tqdm import tqdm
+from my_utils import stylePrint
 
 log = infolog.log
 
@@ -51,7 +52,7 @@ def add_train_stats(model, hparams):
 			for i in range(hparams.tacotron_num_gpus):
 				tf.summary.histogram('linear_outputs %d' % i, model.tower_linear_outputs[i])
 				tf.summary.histogram('linear_targets %d' % i, model.tower_linear_targets[i])
-		
+
 		tf.summary.scalar('regularization_loss', model.regularization_loss)
 		tf.summary.scalar('stop_token_loss', model.stop_token_loss)
 		tf.summary.scalar('loss', model.loss)
@@ -167,6 +168,7 @@ def train(log_dir, args, hparams):
 				f.write('{}\n'.format(symbol))
 
 	char_embedding_meta = char_embedding_meta.replace(log_dir, '..')
+	stylePrint('char_embedding_meta: ', char_embedding_meta, fore='yellow')
 
 	#Potential Griffin-Lim GPU setup
 	if hparams.GL_on_GPU:
@@ -188,7 +190,6 @@ def train(log_dir, args, hparams):
 	config = tf.ConfigProto()
 	config.gpu_options.allow_growth = True
 	config.allow_soft_placement = True
-
 	#Train
 	with tf.Session(config=config) as sess:
 		try:
@@ -218,6 +219,9 @@ def train(log_dir, args, hparams):
 
 			#initializing feeder
 			feeder.start_threads(sess)
+			# import time
+			# time.sleep(0.1)
+			# exit(0)
 
 			#Training loop
 			while not coord.should_stop() and step < args.tacotron_train_steps:

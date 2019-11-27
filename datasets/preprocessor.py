@@ -5,6 +5,7 @@ from functools import partial
 import numpy as np
 from datasets import audio
 from wavenet_vocoder.util import is_mulaw, is_mulaw_quantize, mulaw, mulaw_quantize
+from my_utils import stylePrint
 
 
 def build_from_path(hparams, input_dirs, mel_dir, linear_dir, wav_dir, n_jobs=12, tqdm=lambda x: x):
@@ -30,14 +31,18 @@ def build_from_path(hparams, input_dirs, mel_dir, linear_dir, wav_dir, n_jobs=12
 	futures = []
 	index = 1
 	for input_dir in input_dirs:
-		with open(os.path.join(input_dir, 'metadata.csv'), encoding='utf-8') as f:
+		with open(os.path.join(input_dir, 'ProsodyLabeling', '000001-010000.txt'), encoding='utf-8') as f:
+			basename = None
 			for line in f:
-				parts = line.strip().split('|')
-				basename = parts[0]
-				wav_path = os.path.join(input_dir, 'wavs', '{}.wav'.format(basename))
-				text = parts[2]
-				futures.append(executor.submit(partial(_process_utterance, mel_dir, linear_dir, wav_dir, basename, wav_path, text, hparams)))
-				index += 1
+				if basename is None:
+					basename = line[:6]
+				else:
+					text = line.strip()
+					wav_path = os.path.join(input_dir, 'downsampled', '%s.wav' % basename)
+					# stylePrint('basename:', basename, 'text:', text, 'wav_path:', wav_path, fore='red')
+					futures.append(executor.submit(partial(_process_utterance, mel_dir, linear_dir, wav_dir, basename, wav_path, text, hparams)))
+					index += 1
+					basename = None
 
 	return [future.result() for future in tqdm(futures) if future.result() is not None]
 

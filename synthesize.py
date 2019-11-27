@@ -9,6 +9,7 @@ from hparams import hparams
 from infolog import log
 from tacotron.synthesize import tacotron_synthesize
 from wavenet_vocoder.synthesize import wavenet_synthesize
+from my_utils import stylePrint
 
 
 def prepare_run(args):
@@ -85,6 +86,9 @@ def main():
 
 	taco_checkpoint, wave_checkpoint, hparams = prepare_run(args)
 	sentences = get_sentences(args)
+	stylePrint('taco_checkpoint:', taco_checkpoint, fore='yellow')
+	stylePrint('wave_checkpoint:', wave_checkpoint, fore='yellow')
+	stylePrint('sentences:', sentences, fore='yellow')
 
 	if args.model == 'Tacotron':
 		_ = tacotron_synthesize(args, hparams, taco_checkpoint, sentences)

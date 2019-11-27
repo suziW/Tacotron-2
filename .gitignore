@@ -110,3 +110,10 @@ LJSpeech-1.1/
 
 # vscode
 .vscode/
+
+# myfiles 
+test*
+BZNSYP/
+tacotron_output_*
+training_data_*
+trial*

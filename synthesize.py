@@ -10,6 +10,7 @@ from infolog import log
 from tacotron.synthesize import tacotron_synthesize
 from wavenet_vocoder.synthesize import wavenet_synthesize
 from my_utils import stylePrint
+from chinesePreprocess import chinese2pinyin
 
 
 def prepare_run(args):
@@ -27,6 +28,7 @@ def get_sentences(args):
 	if args.text_list != '':
 		with open(args.text_list, 'rb') as f:
 			sentences = list(map(lambda l: l.decode("utf-8")[:-1], f.readlines()))
+			sentences = [chinese2pinyin(s) for s in sentences]
 	else:
 		sentences = hparams.sentences
 	return sentences
@@ -86,9 +88,6 @@ def main():
 
 	taco_checkpoint, wave_checkpoint, hparams = prepare_run(args)
 	sentences = get_sentences(args)
-	stylePrint('taco_checkpoint:', taco_checkpoint, fore='yellow')
-	stylePrint('wave_checkpoint:', wave_checkpoint, fore='yellow')
-	stylePrint('sentences:', sentences, fore='yellow')
 
 	if args.model == 'Tacotron':
 		_ = tacotron_synthesize(args, hparams, taco_checkpoint, sentences)

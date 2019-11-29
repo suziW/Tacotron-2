@@ -25,7 +25,7 @@ def _compute_attention(attention_mechanism, cell_output, attention_state,
 	#   [batch_size, 1, memory_size].
 	# we then squeeze out the singleton dim.
 	context = math_ops.matmul(expanded_alignments, attention_mechanism.values)
-	context = array_ops.squeeze(context, [1])
+	context = array_ops.squeeze(context, [1])	# 去掉长度为1的维度1
 
 	if attention_layer is not None:
 		attention = attention_layer(array_ops.concat([cell_output, context], 1))

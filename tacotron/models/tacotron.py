@@ -116,7 +116,7 @@ class Tacotron():
 					self.embedding_table = tf.get_variable(
 						'inputs_embedding', [len(symbols), hp.embedding_dim], dtype=tf.float32)
 					embedded_inputs = tf.nn.embedding_lookup(self.embedding_table, tower_inputs[i])
-					stylePrint('embedded_inputs:', embedded_inputs, fore='blue')
+					stylePrint('embedded_inputs:', embedded_inputs, fore='red', back='yellow')
 
 					#Encoder Cell ==> [batch_size, encoder_steps, encoder_lstm_units]
 					encoder_cell = TacotronEncoderCell(
@@ -125,10 +125,10 @@ class Tacotron():
 							zoneout=hp.tacotron_zoneout_rate, scope='encoder_LSTM'))
 
 					encoder_outputs = encoder_cell(embedded_inputs, tower_input_lengths[i])
-					stylePrint('encoder_outputs:', encoder_outputs, fore='blue')
+					stylePrint('encoder_outputs:', encoder_outputs, fore='red', back='yellow')
 					#For shape visualization purpose
 					enc_conv_output_shape = encoder_cell.conv_output_shape
-					stylePrint('enc_conv_output_shape:', enc_conv_output_shape, fore='blue')
+					stylePrint('enc_conv_output_shape:', enc_conv_output_shape, fore='red', back='yellow')
 
 					#Decoder Parts
 					#Attention Decoder Prenet
@@ -164,6 +164,7 @@ class Tacotron():
 
 					#initial decoder state
 					decoder_init_state = decoder_cell.zero_state(batch_size=batch_size, dtype=tf.float32)
+					stylePrint('decoder_init_state:', decoder_init_state, fore='red', back='yellow')
 
 					#Only use max iterations at synthesis time
 					max_iters = hp.max_iters if not (is_training or is_evaluating) else None
@@ -174,12 +175,17 @@ class Tacotron():
 						impute_finished=False,
 						maximum_iterations=max_iters,
 						swap_memory=hp.tacotron_swap_with_cpu)
+					stylePrint('frames_prediction:', frames_prediction, fore='red', back='yellow')
+					stylePrint('stop_token_prediction:', stop_token_prediction, fore='red', back='yellow')
+					stylePrint('final_decoder_state:', final_decoder_state, fore='red', back='yellow')
 
 
 					# Reshape outputs to be one output per entry 
 					#==> [batch_size, non_reduced_decoder_steps (decoder_steps * r), num_mels]
 					decoder_output = tf.reshape(frames_prediction, [batch_size, -1, hp.num_mels])
 					stop_token_prediction = tf.reshape(stop_token_prediction, [batch_size, -1])
+					stylePrint('decoder_output:', decoder_output, fore='red', back='yellow')
+					stylePrint('stop_token_prediction:', stop_token_prediction, fore='red', back='yellow')
 
 					if hp.clip_outputs:
 							decoder_output = tf.minimum(tf.maximum(decoder_output, T2_output_range[0] - hp.lower_bound_decay), T2_output_range[1])

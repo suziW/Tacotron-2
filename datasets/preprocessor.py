@@ -6,6 +6,7 @@ import numpy as np
 from datasets import audio
 from wavenet_vocoder.util import is_mulaw, is_mulaw_quantize, mulaw, mulaw_quantize
 from my_utils import stylePrint
+from chinesePreprocess import insertSpecialChar2pinyin
 
 
 def build_from_path(hparams, input_dirs, mel_dir, linear_dir, wav_dir, n_jobs=12, tqdm=lambda x: x):
@@ -36,8 +37,10 @@ def build_from_path(hparams, input_dirs, mel_dir, linear_dir, wav_dir, n_jobs=12
 			for line in f:
 				if basename is None:
 					basename = line[:6]
+					chinese = line[7:]
 				else:
 					text = line.strip()
+					text = insertSpecialChar2pinyin(chinese, text)
 					wav_path = os.path.join(input_dir, 'downsampled', '%s.wav' % basename)
 					# stylePrint('basename:', basename, 'text:', text, 'wav_path:', wav_path, fore='red')
 					futures.append(executor.submit(partial(_process_utterance, mel_dir, linear_dir, wav_dir, basename, wav_path, text, hparams)))

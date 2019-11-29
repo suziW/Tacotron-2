@@ -10,6 +10,7 @@ from tensorflow.contrib.rnn import RNNCell
 from tensorflow.python.framework import ops, tensor_shape
 from tensorflow.python.ops import array_ops, check_ops, rnn_cell_impl, tensor_array_ops
 from tensorflow.python.util import nest
+from my_utils import stylePrint
 
 _zero_state_tensors = rnn_cell_impl._zero_state_tensors
 
@@ -168,13 +169,19 @@ class TacotronDecoderCell(RNNCell):
 
 	def __call__(self, inputs, state):
 		#Information bottleneck (essential for learning attention)
+		stylePrint('inputs:', inputs, fore='black', back='white')
+		stylePrint('state:', state, fore='black', back='white')
 		prenet_output = self._prenet(inputs)
+		stylePrint('prenet_output:', prenet_output, fore='black', back='white')
 
 		#Concat context vector and prenet output to form LSTM cells input (input feeding)
 		LSTM_input = tf.concat([prenet_output, state.attention], axis=-1)
+		stylePrint('LSTM_input:', LSTM_input, fore='black', back='white')
 
 		#Unidirectional LSTM layers
 		LSTM_output, next_cell_state = self._cell(LSTM_input, state.cell_state)
+		stylePrint('LSTM_output:', LSTM_output, fore='black', back='white')
+		stylePrint('next_cell_state:', next_cell_state, fore='black', back='white')
 
 
 		#Compute the attention (context) vector and alignments using
@@ -193,6 +200,7 @@ class TacotronDecoderCell(RNNCell):
 
 		#Concat LSTM outputs and context vector to form projections inputs
 		projections_input = tf.concat([LSTM_output, context_vector], axis=-1)
+		stylePrint('projections_input:', projections_input, fore='black', back='white')
 
 		#Compute predicted frames and predicted <stop_token>
 		cell_outputs = self._frame_projection(projections_input)

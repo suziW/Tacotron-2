@@ -219,9 +219,7 @@ def train(log_dir, args, hparams):
 
 			#initializing feeder
 			feeder.start_threads(sess)
-			# import time
-			# time.sleep(0.1)
-			# exit(0)
+
 
 			#Training loop
 			while not coord.should_stop() and step < args.tacotron_train_steps:
@@ -390,7 +388,10 @@ def train(log_dir, args, hparams):
 					log('\nSaving Model Character Embeddings visualization..')
 					add_embedding_stats(summary_writer, [model.embedding_table.name], [char_embedding_meta], checkpoint_state.model_checkpoint_path)
 					log('Tacotron Character embeddings have been updated on tensorboard!')
-
+				######################################################
+				stylePrint('stop at step: ', step, fore='red', back='yellow')
+				time.sleep(0.5)
+				exit(0)
 			log('Tacotron training complete after {} global steps!'.format(args.tacotron_train_steps), slack=True)
 			return save_dir
 

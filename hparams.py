@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-num_gpus = 2
+num_gpus = 1
 # Default hyperparameters
 hparams = tf.contrib.training.HParams(
 	# Comma-separated list of cleaners to run on text prior to training and eval. For non-English

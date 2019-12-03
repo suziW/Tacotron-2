@@ -357,11 +357,11 @@ class Postnet:
 		super(Postnet, self).__init__()
 		self.is_training = is_training
 
-		self.kernel_size = hparams.postnet_kernel_size
-		self.channels = hparams.postnet_channels
+		self.kernel_size = hparams.postnet_kernel_size	#(5, )
+		self.channels = hparams.postnet_channels	#512
 		self.activation = activation
 		self.scope = 'postnet_convolutions' if scope is None else scope
-		self.postnet_num_layers = hparams.postnet_num_layers
+		self.postnet_num_layers = hparams.postnet_num_layers	#5
 		self.drop_rate = hparams.tacotron_dropout_rate
 		self.bnorm = hparams.batch_norm_position
 

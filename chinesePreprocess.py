@@ -4,7 +4,7 @@ from my_utils import stylePrint
 # from unidecode import unidecode
 
 
-specialChars = [
+specialCharsPin = [
     ('，', ','),
     ('、', ','),
     ('：',':'),
@@ -17,6 +17,10 @@ specialChars = [
     ('…','*'),
     ('（', '('),
     ('）', ')'),
+    ('；', '.'),
+    ]
+
+specialCharsHan = [
     ('0', '零'),
     ('1', '一'),
     ('2', '二'),
@@ -27,22 +31,27 @@ specialChars = [
     ('7', '七'),
     ('8', '八'),
     ('9', '九'),
+    ('《', ''),
+    ('》', ''),
     ]
 
 def chinese2pinyin(chiniese):
     p = Pinyin()
-    for regex, replacement in specialChars:
+    for regex, replacement in specialCharsHan:
         chiniese = re.sub(regex, replacement, chiniese)
     stylePrint(chiniese, fore='red', back='yellow')
 
     result = p.get_pinyin(chiniese, splitter=' ', tone_marks='numbers', convert='lower')
+    for regex, replacement in specialCharsPin:
+        result = re.sub(regex, replacement, result)
+    stylePrint(result, fore='red', back='yellow')
     return result
 
 # biaobei preprocess, add special chars to pinyin
 def getSpecialCharPositions(chinese):
     chinese = re.sub('#\d', '', chinese)
     replaceList = []
-    for char, replace in specialChars:
+    for char, replace in specialCharsPin:
         patterns = re.finditer(char, chinese)
         for p in patterns:
             replaceList.append((p.span()[0], replace))

@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.contrib.seq2seq import Helper
+from my_utils import stylePrint
 
 
 class TacoTestHelper(Helper):
@@ -78,6 +79,8 @@ class TacoTrainingHelper(Helper):
 
 			#Maximal sequence length
 			self._lengths = tf.tile([tf.shape(self._targets)[1]], [self._batch_size])
+			stylePrint('self._targets:', self._targets, fore='red', back='green')
+			stylePrint('self._lengths:', self._lengths, fore='red', back='green')
 
 	@property
 	def batch_size(self):

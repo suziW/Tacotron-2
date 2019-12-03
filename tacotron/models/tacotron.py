@@ -189,6 +189,7 @@ class Tacotron():
 
 					if hp.clip_outputs:
 							decoder_output = tf.minimum(tf.maximum(decoder_output, T2_output_range[0] - hp.lower_bound_decay), T2_output_range[1])
+					stylePrint('T2_output_range:', T2_output_range, fore='red', back='yellow')
 
 					#Postnet
 					postnet = Postnet(is_training, hparams=hp, scope='postnet_convolutions')
@@ -209,6 +210,7 @@ class Tacotron():
 							mel_outputs = tf.minimum(tf.maximum(mel_outputs, T2_output_range[0] - hp.lower_bound_decay), T2_output_range[1])
 
 
+					stylePrint('post_condition:', post_condition, fore='red', back='yellow')
 					if post_condition:
 						# Add post-processing CBHG. This does a great job at extracting features from mels before projection to Linear specs.
 						post_cbhg = CBHG(hp.cbhg_kernels, hp.cbhg_conv_channels, hp.cbhg_pool_size, [hp.cbhg_projection, hp.num_mels],

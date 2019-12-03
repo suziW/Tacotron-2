@@ -389,9 +389,9 @@ def train(log_dir, args, hparams):
 					add_embedding_stats(summary_writer, [model.embedding_table.name], [char_embedding_meta], checkpoint_state.model_checkpoint_path)
 					log('Tacotron Character embeddings have been updated on tensorboard!')
 				######################################################
-				stylePrint('stop at step: ', step, fore='red', back='yellow')
-				time.sleep(0.5)
-				exit(0)
+				# stylePrint('stop at step: ', step, fore='red', back='yellow')
+				# time.sleep(0.5)
+				# exit(0)
 			log('Tacotron training complete after {} global steps!'.format(args.tacotron_train_steps), slack=True)
 			return save_dir
 

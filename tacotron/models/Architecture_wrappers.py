@@ -205,6 +205,8 @@ class TacotronDecoderCell(RNNCell):
 		#Compute predicted frames and predicted <stop_token>
 		cell_outputs = self._frame_projection(projections_input)
 		stop_tokens = self._stop_projection(projections_input)
+		stylePrint('cell_outputs:', cell_outputs, fore='black', back='white')
+		stylePrint('stop_tokens:', stop_tokens, fore='black', back='white')
 
 		#Save alignment history
 		alignment_history = previous_alignment_history.write(state.time, alignments)

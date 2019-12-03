@@ -4,6 +4,7 @@ import tensorflow as tf
 from tensorflow.contrib.seq2seq.python.ops.attention_wrapper import BahdanauAttention
 from tensorflow.python.layers import core as layers_core
 from tensorflow.python.ops import array_ops, math_ops, nn_ops, variable_scope
+from my_utils import stylePrint
 
 
 #From https://github.com/tensorflow/tensorflow/blob/r1.7/tensorflow/contrib/seq2seq/python/ops/attention_wrapper.py
@@ -26,6 +27,9 @@ def _compute_attention(attention_mechanism, cell_output, attention_state,
 	# we then squeeze out the singleton dim.
 	context = math_ops.matmul(expanded_alignments, attention_mechanism.values)
 	context = array_ops.squeeze(context, [1])	# 去掉长度为1的维度1
+	stylePrint('alignments:', alignments, fore='yellow', back='blue')
+	stylePrint('attention_mechanism.values:', attention_mechanism.values, fore='yellow', back='blue')	# masked memory
+	stylePrint('context:', context, fore='yellow', back='blue')
 
 	if attention_layer is not None:
 		attention = attention_layer(array_ops.concat([cell_output, context], 1))
@@ -147,6 +151,8 @@ class LocationSensitiveAttention(BahdanauAttention):
 		"""
 		#Create normalization function
 		#Setting it to None defaults in using softmax
+		stylePrint('num_units:', num_units, fore='yellow', back='blue')
+		stylePrint('memory:', memory, fore='yellow', back='blue')
 		normalization_function = _smoothing_normalization if (smoothing == True) else None
 		memory_length = memory_sequence_length if (mask_encoder==True) else None
 		super(LocationSensitiveAttention, self).__init__(
@@ -179,11 +185,15 @@ class LocationSensitiveAttention(BahdanauAttention):
 				`[batch_size, alignments_size]` (`alignments_size` is memory's
 				`max_time`).
 		"""
+		stylePrint('query:', query, fore='yellow', back='blue')
+		stylePrint('state:', state, fore='yellow', back='blue')
 		previous_alignments = state
 		with variable_scope.variable_scope(None, "Location_Sensitive_Attention", [query]):
 
 			# processed_query shape [batch_size, query_depth] -> [batch_size, attention_dim]
 			processed_query = self.query_layer(query) if self.query_layer else query
+			stylePrint('self.query_layer:', self.query_layer, fore='yellow', back='blue')
+			stylePrint('processed_query:', processed_query, fore='yellow', back='blue')
 			# -> [batch_size, 1, attention_dim]
 			processed_query = tf.expand_dims(processed_query, 1)
 
@@ -196,7 +206,7 @@ class LocationSensitiveAttention(BahdanauAttention):
 			processed_location_features = self.location_layer(f)
 
 			# energy shape [batch_size, max_time]
-			energy = _location_sensitive_score(processed_query, processed_location_features, self.keys)
+			energy = _location_sensitive_score(processed_query, processed_location_features, self.keys)	# 就是e向量，长度为encoder的时长
 
 		if self.synthesis_constraint:
 			Tx = tf.shape(energy)[-1]
@@ -216,6 +226,8 @@ class LocationSensitiveAttention(BahdanauAttention):
 		# alignments shape = energy shape = [batch_size, max_time]
 		alignments = self._probability_fn(energy, previous_alignments)
 		max_attentions = tf.argmax(alignments, -1, output_type=tf.int32) # (N, Ty/r)
+		stylePrint('max_attentions:', max_attentions, fore='yellow', back='blue')
+		
 
 		# Cumulate alignments
 		if self._cumulate:

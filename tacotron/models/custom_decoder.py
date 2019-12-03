@@ -10,6 +10,7 @@ from tensorflow.python.framework import ops, tensor_shape
 from tensorflow.python.layers import base as layers_base
 from tensorflow.python.ops import rnn_cell_impl
 from tensorflow.python.util import nest
+from my_utils import stylePrint
 
 
 class CustomDecoderOutput(

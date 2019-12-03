@@ -9,7 +9,7 @@ from .gaussian import sample_from_gaussian
 from .mixture import sample_from_discretized_mix_logistic
 from .modules import (Conv1D1x1, ConvTranspose2D, ConvTranspose1D, ResizeConvolution, SubPixelConvolution, NearestNeighborUpsample, DiscretizedMixtureLogisticLoss, 
 	GaussianMaximumLikelihoodEstimation, MaskedMeanSquaredError, LeakyReluActivation, MaskedCrossEntropyLoss, ReluActivation, ResidualConv1DGLU, WeightNorm, Embedding)
-
+from my_utils import stylePrint
 
 def _expand_global_features(batch_size, time_length, global_features, data_format='BCT'):
 	"""Expand global conditioning features to all time steps
@@ -218,6 +218,8 @@ class WaveNet():
 	def initialize(self, y, c, g, input_lengths, x=None, synthesis_length=None, test_inputs=None, split_infos=None):
 		'''Initialize wavenet graph for train, eval and test cases.
 		'''
+		stylePrint('initialize_x:', x, fore='red', back='green')
+		stylePrint('initialize_c:', c, fore='red', back='green')
 		hparams = self._hparams
 		self.is_training = x is not None
 		self.is_evaluating = not self.is_training and y is not None
@@ -235,6 +237,8 @@ class WaveNet():
 			tower_y = tf.split(y, num_or_size_splits=hp.wavenet_num_gpus, axis=0) if y is not None else [y] * hp.wavenet_num_gpus
 			tower_x = tf.split(x, num_or_size_splits=hp.wavenet_num_gpus, axis=0) if x is not None else [x] * hp.wavenet_num_gpus
 			tower_c = tf.split(c, num_or_size_splits=hp.wavenet_num_gpus, axis=0) if self.local_conditioning_enabled() else [None] * hp.wavenet_num_gpus
+			stylePrint('tower_x:', tower_x, fore='red', back='green')
+			stylePrint('tower_c:', tower_c, fore='red', back='green')
 			tower_g = tf.split(g, num_or_size_splits=hp.wavenet_num_gpus, axis=0) if self.global_conditioning_enabled() else [None] * hp.wavenet_num_gpus
 			tower_test_inputs = tf.split(test_inputs, num_or_size_splits=hp.wavenet_num_gpus, axis=0) if test_inputs is not None else [test_inputs] * hp.wavenet_num_gpus
 
@@ -696,6 +700,7 @@ class WaveNet():
 
 			#[batch_size, cin_channels, time_length]
 			c = tf.squeeze(c, [expand_dim])
+			tf.concat([x, c], axis=1)
 			with tf.control_dependencies([tf.assert_equal(tf.shape(c)[-1], tf.shape(x)[-1])]):
 				c = tf.identity(c, name='control_c_and_x_shape')
 

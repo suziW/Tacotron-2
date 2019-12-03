@@ -10,6 +10,7 @@ from keras.utils import np_utils
 from sklearn.model_selection import train_test_split
 
 from .util import is_mulaw_quantize, is_scalar_input
+from my_utils import stylePrint
 
 
 
@@ -40,6 +41,7 @@ class Feeder:
 		self._data_dir = os.path.dirname(metadata_filename)
 		with open(metadata_filename, 'r') as f:
 			self._metadata = [line.strip().split('|') for line in f]
+		# stylePrint('metadata_filename:', metadata_filename, fore='red', back='yellow')
 
 		#Train test split
 		if hparams.wavenet_test_size is None:
@@ -67,6 +69,8 @@ class Feeder:
 
 		#Get conditioning status
 		self.local_condition, self.global_condition = self._check_conditions()
+		# stylePrint('self.local_condition:', self.local_condition, fore='red', back='yellow')
+		# stylePrint('self.global_condition:', self.global_condition, fore='red', back='yellow')
 
 		with tf.device('/cpu:0'):
 			# Create placeholders for inputs and targets. Don't specify batch size because we want
@@ -289,7 +293,11 @@ class Feeder:
 			new_batches += (local_condition_features, )
 		if global_condition_features is not None:
 			new_batches += (global_condition_features, )
-
+		# print('-----------------------------------------------------------------------------------------------------')
+		# stylePrint('inputs:', inputs.shape, fore='red', back='yellow')
+		# stylePrint('targets:', targets.shape, fore='red', back='yellow')
+		# stylePrint('input_lengths:', input_lengths, fore='red', back='yellow')
+		# stylePrint('local_condition_features:', local_condition_features.shape, fore='red', back='yellow')
 		return new_batches
 
 	def _prepare_inputs(self, inputs, maxlen):

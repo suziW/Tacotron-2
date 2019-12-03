@@ -118,3 +118,4 @@ tacotron_output_*
 training_data_*
 trial*
 tacotron_output*
+wavenet_output*

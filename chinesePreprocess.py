@@ -33,6 +33,7 @@ specialCharsHan = [
     ('9', '九'),
     ('《', ''),
     ('》', ''),
+    (' ', ''),
     ]
 
 def chinese2pinyin(chiniese):
@@ -74,9 +75,7 @@ def insertSpecialChar2pinyin(chinese, pinyin):
     
 
 if __name__ == "__main__":
-    chinese = '这不#1因为#1工伤吗#3？上班忙……#2胡乱#1吃早饭#3，加班#1熬夜#3——久坐#1不运动#4……'
-    pinyin = 'zhe4 bu4 yin1 wei4 gong1 shang1 ma5 shang4 ban1 mang2 hu2 luan4 chi1 zao3 fan4 jia1 ban1 ao2 ye4 jiu3 zuo4 bu2 yun4 dong4'
+    chinese = '外甥全神贯注的观察中，突然这家伙说了句：“这么点玩意儿怎么够吃。”'
+    pinyin = 'wai4 sheng5 quan2 shen2 guan4 zhu4 de5 guan1 cha2 zhong1 tu1 ran2 zhe4 jia1 huo5 shuo1 le5 ju4 zhe4 me5 dian3 wan2 yir4 zen3 me5 gou4 chi1'
     print(insertSpecialChar2pinyin(chinese, pinyin))
-    chinese = '1980年，檢調查出，向心夫婦曾多次來台，這次來台——訪友及洽商……'    
     print(chinese2pinyin(chinese))
-    print('end')

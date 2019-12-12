@@ -29,6 +29,7 @@ class TacoTestHelper(Helper):
 		return np.int32
 
 	def initialize(self, name=None):
+		stylePrint('initial_input: ', _go_frames(self._batch_size, self._output_dim), fore='red')
 		return (tf.tile([False], [self._batch_size]), _go_frames(self._batch_size, self._output_dim))
 
 	def sample(self, time, outputs, state, name=None):
